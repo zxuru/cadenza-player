@@ -203,6 +203,10 @@ jobs:
       # run that reached for those instead of the copies inside the AppImage
       # would pass while the AppImage itself was broken.
       - name: Smoke test the AppImage
+        env:
+          # What this release publishes. Empty on a hand run, and then the
+          # file's own name is the version the rest is checked against.
+          EXPECTED_VERSION: ${{ inputs.version }}
         run: |
           set -euo pipefail
 
@@ -211,6 +215,10 @@ jobs:
           version="$(sed -E 's/^cadenza-(.+)-x86_64\.AppImage$/\1/' <<< "${name}")"
           if [[ "${version}" == "${name}" ]]; then
               echo "error: ${name} is not named cadenza-<version>-x86_64.AppImage" >&2
+              exit 1
+          fi
+          if [[ -n "${EXPECTED_VERSION}" && "${version}" != "${EXPECTED_VERSION}" ]]; then
+              echo "error: this release publishes ${EXPECTED_VERSION} and the file is named ${version}" >&2
               exit 1
           fi
 

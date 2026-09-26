@@ -168,10 +168,6 @@ jobs:
           # work" and knowing why.
           $env:QT_ASSUME_STDERR_HAS_CONSOLE = '1'
 
-          # TEMPORARY: why the engine cannot find QtQuick.Controls' plugin.
-          $env:QML_IMPORT_TRACE = '1'
-          $env:QT_DEBUG_PLUGINS = '1'
-
           # The window, out of whichever tree is given: staying up for ten
           # seconds is the assertion, because a missing QML module or a plugin
           # the engine cannot load makes it fail and the process exit. What it
@@ -249,13 +245,14 @@ jobs:
           # windeployqt puts them: the platform plugin Qt loads before
           # anything else, the sqlite driver behind the library index, the
           # JPEG decoder behind every cover, the Windows TLS backend behind
-          # the lyrics lookup, and the QML module behind every control the
+          # the lyrics lookup, the QML module behind every control the
           # interface draws -- the .qml files and the plugin next to them,
-          # which is what the engine loads by name.
+          # which is what the engine loads by name -- and the qt.conf that
+          # tells the engine where that QML lives.
           foreach ($file in 'platforms\qwindows.dll', 'sqldrivers\qsqlite.dll',
                             'imageformats\qjpeg.dll', 'tls\qschannelbackend.dll',
                             'qml\QtQuick\Controls\qtquickcontrols2plugin.dll',
-                            'qml\QtQuick\Controls\Basic\qmldir') {
+                            'qml\QtQuick\Controls\Basic\qmldir', 'qt.conf') {
               if (-not (Test-Path -LiteralPath (Join-Path $install $file))) {
                   throw "$file is missing from the installed copy"
               }

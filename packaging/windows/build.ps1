@@ -197,6 +197,35 @@ Invoke-Checked $windeployqt @(
     $exe
 )
 
+# windeployqt puts the QML modules in qml\, and Qt on Windows looks for them
+# where its own build put them -- share\qt6\qml, which is not there -- unless
+# a qt.conf beside the executable says otherwise. Without one the engine
+# resolves a module from the QML compiled into the Qt libraries themselves,
+# and the module's plugin is a DLL that cannot be in there: the engine then
+# reports a plugin it plainly has next to it as missing.
+Write-Host '==> qt.conf'
+@'
+[Paths]
+Prefix = .
+Qml2Imports = qml
+'@ | Set-Content -LiteralPath (Join-Path $DistDir 'bin\qt.conf') -Encoding ascii
+
+# Those same QML modules carry `prefer :/qt-project.org/imports/...`, which
+# sends the engine to that copy in Qt's resources even when the deployed one
+# is in front of it. Taken out of the deployed files, so what the engine
+# loads is the module that has its plugin beside it.
+Write-Host '==> qmldir'
+$rewritten = 0
+foreach ($qmldir in Get-ChildItem -LiteralPath (Join-Path $DistDir 'bin') -Recurse -Filter 'qmldir' -File) {
+    $lines = @(Get-Content -LiteralPath $qmldir.FullName)
+    $kept = @($lines | Where-Object { $_ -notmatch '^\s*prefer\s+:/' })
+    if ($kept.Count -ne $lines.Count) {
+        Set-Content -LiteralPath $qmldir.FullName -Encoding ascii -Value $kept
+        $rewritten++
+    }
+}
+Write-Host "    $rewritten rewritten"
+
 # windeployqt knows Qt and nothing else: libmpv, TagLib and the MinGW runtime
 # (libgcc, libstdc++, libwinpthread) come from MSYS2, and libmpv-2.dll drags
 # a whole FFmpeg, ass, fontconfig and harfbuzz tree behind it. ntldd walks
