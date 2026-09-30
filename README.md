@@ -416,6 +416,11 @@ the code that was pushed last, and a tag publishes the version it carries:
 | a commit on `main` | `v<major>.<minor>.<run number>` | the same |
 | a tag `v1.2.3` | `v1.2.3` | the same |
 
+The trigger has no path filter, so a commit that only rewrites prose publishes
+too. Skipping those would save two runners and cost the point of the
+workflow: a push that builds nothing is silent, and the newest release would
+be left one push behind `main` with nothing on the release page saying so.
+
 The patch of a push release is the workflow run number, which only ever grows,
 so two builds are never ordered randomly. `major.minor` come from the `VERSION`
 in `CMakeLists.txt`, which is also what a build made by hand reports.
