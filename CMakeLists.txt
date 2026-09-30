@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.21)
 project(cadenza
     VERSION 1.0.0
     DESCRIPTION "A local-files music player"
-    HOMEPAGE_URL "https://github.com/zxuru/cadenza-player-c"
+    HOMEPAGE_URL "https://github.com/zxuru/cadenza-player"
     LANGUAGES CXX
 )
 
