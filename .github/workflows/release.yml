@@ -13,17 +13,16 @@ name: Release
 # from the Actions tab when only the artifact is wanted. Run by hand, this one
 # builds and checks and publishes nothing.
 
+# No path filter: a commit that only rewrites prose publishes too. A skipped
+# push is a release that never formed, and it is silent -- the release page
+# would show the newest release as the code that was pushed last when it is
+# one push behind, with nothing on the page saying so.
 on:
   push:
     branches:
       - main
     tags:
       - 'v*'
-    # A commit that rewrites prose does not need two runners. Tags are exempt
-    # from path filters, so a release still builds everything.
-    paths-ignore:
-      - '**/*.md'
-      - 'LICENSE'
   workflow_dispatch:
 
 permissions:
